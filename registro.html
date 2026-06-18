@@ -1,24 +1,171 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-<meta charset="UTF-8">
-<title>Registrar iniciativa</title>
+  <meta charset="UTF-8">
+  <title>Registrar una iniciativa</title>
 
-   <link rel="stylesheet" href="style.css">
+  <!-- Estilos de Leaflet -->
+  <link rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+  <style>
+    body{
+      font-family: Arial, sans-serif;
+      max-width: 900px;
+      margin:auto;
+      padding:20px;
+    }
+
+    label{
+      display:block;
+      margin-top:15px;
+      font-weight:bold;
+    }
+
+    input, textarea, select{
+      width:100%;
+      padding:8px;
+      margin-top:5px;
+      box-sizing:border-box;
+    }
+
+    #map{
+      height:400px;
+      margin-top:15px;
+      border:1px solid #cccccc;
+    }
+
+    button{
+      margin-top:20px;
+      padding:10px 20px;
+      font-size:16px;
+    }
+  </style>
+
 </head>
 
 <body>
 
 <h1>Registrar una iniciativa</h1>
 
-<p>Próximamente aparecerá aquí el formulario.</p>
+<p>
+Completa la siguiente información.
+</p>
+
+<label>
+Nombre de la iniciativa
+</label>
+
+<input id="nombre">
+
+<label>
+Descripción
+</label>
+
+<textarea id="descripcion"></textarea>
+
+<label>
+Categoría
+</label>
+
+<select id="categoria">
+
+<option>Huerto comunitario</option>
+
+<option>Huerto escolar</option>
+
+<option>Banco de semillas</option>
+
+<option>Mercado agroecológico</option>
+
+<option>Organización civil</option>
+
+<option>Otro</option>
+
+</select>
+
+<label>
+Municipio
+</label>
+
+<input id="municipio">
+
+<label>
+Estado
+</label>
+
+<input id="estado">
+
+<h2>
+Seleccione la ubicación
+</h2>
 
 <p>
-<a href="index.html">
-Volver al inicio
-</a>
+Haga clic sobre el mapa para colocar un marcador.
 </p>
+
+<div id="map"></div>
+
+<p id="coords">
+No se ha seleccionado ubicación.
+</p>
+
+<button>
+Enviar
+</button>
+
+<script
+src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+</script>
+
+<script>
+
+var map =
+L.map('map').setView(
+[17.0732,-96.7266],
+7
+);
+
+L.tileLayer(
+
+'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+
+{
+attribution:'© OpenStreetMap'
+}
+
+).addTo(map);
+
+var marker;
+
+map.on('click',function(e){
+
+if(marker){
+
+map.removeLayer(marker);
+
+}
+
+marker =
+L.marker(e.latlng).addTo(map);
+
+document.getElementById("coords").innerHTML=
+
+"Latitud: "
++
+e.latlng.lat.toFixed(6)
+
++
+
+"<br>Longitud: "
+
++
+
+e.latlng.lng.toFixed(6);
+
+});
+
+</script>
 
 </body>
 
