@@ -105,9 +105,15 @@ Haga clic sobre el mapa para colocar un marcador.
 </p>
 
 <div id="map"></div>
+<input type="hidden" id="latitud" name="latitud">
+<input type="hidden" id="longitud" name="longitud">
+  <label style="font-weight: normal; margin-top: 15px;">
+  <input type="checkbox" id="ubicacion_aproximada">
+  Prefiero no indicar una ubicación exacta. El mapa podrá mostrar una ubicación aproximada basada en el municipio.
+</label>
 
 <p id="coords">
-No se ha seleccionado ubicación.
+⚪ Aún no se ha seleccionado una ubicación.
 </p>
 
 <button>
@@ -149,19 +155,11 @@ map.removeLayer(marker);
 marker =
 L.marker(e.latlng).addTo(map);
 
-document.getElementById("coords").innerHTML=
+document.getElementById("latitud").value = e.latlng.lat;
+document.getElementById("longitud").value = e.latlng.lng;
 
-"Latitud: "
-+
-e.latlng.lat.toFixed(6)
-
-+
-
-"<br>Longitud: "
-
-+
-
-e.latlng.lng.toFixed(6);
+document.getElementById("coords").innerHTML =
+  "✅ Ubicación seleccionada correctamente.";
 
 });
 
