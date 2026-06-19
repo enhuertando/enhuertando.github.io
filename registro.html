@@ -1,171 +1,240 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Registrar una iniciativa</title>
-  <form id="registroForm">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Registro Enhuertando</title>
 
-  <!-- Estilos de Leaflet -->
-  <link rel="stylesheet"
-        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 
-  <style>
-    body{
-      font-family: Arial, sans-serif;
-      max-width: 900px;
-      margin:auto;
-      padding:20px;
-    }
+<style>
+body { font-family: Arial; margin: 0; padding: 0; }
+.container { max-width: 900px; margin: auto; padding: 20px; }
 
-    label{
-      display:block;
-      margin-top:15px;
-      font-weight:bold;
-    }
+label { font-weight: bold; display: block; margin-top: 15px; }
+input, textarea, select { width: 100%; padding: 8px; margin-top: 5px; }
 
-    input, textarea, select{
-      width:100%;
-      padding:8px;
-      margin-top:5px;
-      box-sizing:border-box;
-    }
+#map { height: 350px; margin-top: 10px; }
 
-    #map{
-      height:400px;
-      margin-top:15px;
-      border:1px solid #cccccc;
-    }
+.pin-status {
+  margin-top: 10px;
+  font-weight: bold;
+}
 
-    button{
-      margin-top:20px;
-      padding:10px 20px;
-      font-size:16px;
-    }
-  </style>
+.green { color: green; }
+.gray { color: gray; }
 
+button { margin-top: 20px; padding: 10px; }
+</style>
 </head>
 
 <body>
 
-<h1>Registrar una iniciativa</h1>
+<div class="container">
 
-<p>
-Completa la siguiente información.
-</p>
+<h2>Registro de iniciativa</h2>
 
-<label>
-Nombre de la iniciativa
-</label>
+<!-- NOMBRE -->
+<label>Nombre de la iniciativa *</label>
+<input id="nombre" type="text"/>
 
-<input id="nombre">
-
-<label>
-Descripción
-</label>
-
+<!-- DESCRIPCION -->
+<label>Descripción (opcional)</label>
 <textarea id="descripcion"></textarea>
 
-<label>
-Categoría
-</label>
-
-<select id="categoria">
-
-<option>Huerto comunitario</option>
-
-<option>Huerto escolar</option>
-
-<option>Banco de semillas</option>
-
-<option>Mercado agroecológico</option>
-
-<option>Organización civil</option>
-
-<option>Otro</option>
-
+<!-- TIPO -->
+<label>Tipo de iniciativa *</label>
+<select id="tipo" multiple>
+  <option>Huerto familiar</option>
+  <option>Huerto comunitario</option>
+  <option>Huerto escolar</option>
+  <option>Huerto comercial</option>
+  <option>Mercado o tianguis</option>
+  <option>Tienda</option>
+  <option>Organización civil</option>
+  <option>Colectiva o colectivo</option>
+  <option>Cooperativa</option>
+  <option>Banco o intercambio de semillas</option>
+  <option>Proyecto educativo o conversatorios</option>
+  <option>Cocina o restaurante</option>
+  <option>Espacio demostrativo</option>
+  <option>Otro</option>
 </select>
 
-<label>
-Municipio
-</label>
+<!-- OFRECE -->
+<label>¿Qué ofrece? (opcional)</label>
+<select id="ofrece" multiple>
+  <option>Talleres</option>
+  <option>Capacitación</option>
+  <option>Trueque o intercambio</option>
+  <option>Venta de alimentos</option>
+  <option>Venta de plantas</option>
+  <option>Venta de semillas</option>
+  <option>Intercambio de semillas</option>
+  <option>Composta o lombricomposta</option>
+  <option>Insumos para siembra</option>
+  <option>Asesoría técnica</option>
+  <option>Voluntariado</option>
+  <option>Actividades comunitarias</option>
+  <option>Actividades artísticas</option>
+  <option>Consumo local</option>
+  <option>Productos listos para consumir</option>
+</select>
 
-<input id="municipio">
+<!-- MUNICIPIO -->
+<label>Municipio *</label>
+<input id="busquedaMunicipio" placeholder="Escribe para buscar..." />
+<select id="municipio"></select>
 
-<label>
-Estado
-</label>
-
-<input id="estado">
-
-<h2>
-Seleccione la ubicación
-</h2>
-
-<p>
-Haga clic sobre el mapa para colocar un marcador.
-</p>
+<!-- MAPA -->
+<label>Ubicación *</label>
+<input type="checkbox" id="aproximada"/> Prefiero no indicar ubicación exacta
 
 <div id="map"></div>
-<input type="hidden" id="latitud" name="latitud">
-<input type="hidden" id="longitud" name="longitud">
-  <label style="font-weight: normal; margin-top: 15px;">
-  <input type="checkbox" id="ubicacion_aproximada">
-  Prefiero no indicar una ubicación exacta. El mapa podrá mostrar una ubicación aproximada basada en el municipio.
-</label>
 
-<p id="coords">
-⚪ Aún no se ha seleccionado una ubicación.
-</p>
+<div class="pin-status" id="estadoPin">Sin ubicación seleccionada</div>
 
-<button type="submit">
-Enviar iniciativa
-</button>
-</form>
-<script
-src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
-</script>
+<!-- CONTACTO -->
+<label>Datos de contacto (WhatsApp, correo, redes sociales) (opcional)</label>
+textarea id="contacto"></textarea>
+
+<button onclick="enviar()">Enviar</button>
+
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
+// ---------------- MUNICIPIOS BASE (simplificado aquí) ----------------
+const municipios = [
+  "Abejones",
+  "Acatlán de Pérez Figueroa",
+  "Asunción Nochixtlán",
+  "Oaxaca de Juárez",
+  "Santo Domingo Tehuantepec",
+  "Juchitán de Zaragoza",
+  "Huajuapan de León"
+];
 
-var map =
-L.map('map').setView(
-[17.0732,-96.7266],
-7
-);
-
-L.tileLayer(
-
-'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-
-{
-attribution:'© OpenStreetMap'
-}
-
-).addTo(map);
-
-var marker;
-
-map.on('click',function(e){
-
-if(marker){
-
-map.removeLayer(marker);
-
-}
-
-marker =
-L.marker(e.latlng).addTo(map);
-
-document.getElementById("latitud").value = e.latlng.lat;
-document.getElementById("longitud").value = e.latlng.lng;
-
-document.getElementById("coords").innerHTML =
-  "✅ Ubicación seleccionada correctamente.";
-
+// llenar select
+const select = document.getElementById("municipio");
+municipios.forEach(m => {
+  let opt = document.createElement("option");
+  opt.value = m;
+  opt.textContent = m;
+  select.appendChild(opt);
 });
 
+// búsqueda simple
+document.getElementById("busquedaMunicipio").addEventListener("input", function(e){
+  const val = e.target.value.toLowerCase();
+  select.innerHTML = "";
+  municipios
+    .filter(m => m.toLowerCase().includes(val))
+    .forEach(m => {
+      let opt = document.createElement("option");
+      opt.value = m;
+      opt.textContent = m;
+      select.appendChild(opt);
+    });
+});
+
+// ---------------- MAPA ----------------
+const map = L.map('map').setView([17.0732, -96.7266], 7);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: 'OpenStreetMap'
+}).addTo(map);
+
+let marker = null;
+let modoAproximado = false;
+
+// click para pin verde
+map.on("click", function(e){
+  if (modoAproximado) return;
+
+  if (marker) map.removeLayer(marker);
+
+  marker = L.marker(e.latlng, { draggable: true, icon: greenIcon() }).addTo(map);
+
+  marker.on("dragend", updateStatus);
+
+  updateStatus();
+});
+
+// icono verde/gris
+function greenIcon(){
+  return new L.Icon({
+    iconUrl: "https://maps.gstatic.com/mapfiles/ms2/micons/green-dot.png",
+    iconSize: [32,32]
+  });
+}
+function grayIcon(){
+  return new L.Icon({
+    iconUrl: "https://maps.gstatic.com/mapfiles/ms2/micons/grey-dot.png",
+    iconSize: [32,32]
+  });
+}
+
+// checkbox aproximada
+document.getElementById("aproximada").addEventListener("change", async function(e){
+  modoAproximado = e.target.checked;
+
+  if (modoAproximado) {
+    if (marker) map.removeLayer(marker);
+
+    const mun = select.value;
+    const coords = await geocodeMunicipio(mun);
+
+    if (coords) {
+      marker = L.marker(coords, { icon: grayIcon(), draggable: false }).addTo(map);
+      map.setView(coords, 10);
+    }
+
+    document.getElementById("estadoPin").innerText = "Ubicación aproximada";
+    document.getElementById("estadoPin").className = "pin-status gray";
+  } else {
+    if (marker) map.removeLayer(marker);
+    marker = null;
+
+    document.getElementById("estadoPin").innerText = "Selecciona un punto en el mapa";
+  }
+});
+
+// geocoding municipio
+async function geocodeMunicipio(nombre){
+  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(nombre + ", Oaxaca, Mexico, palacio municipal")}&limit=1`;
+  const res = await fetch(url);
+  const data = await res.json();
+
+  if (data.length > 0) {
+    return [parseFloat(data[0].lat), parseFloat(data[0].lon)];
+  }
+  return null;
+}
+
+function updateStatus(){
+  document.getElementById("estadoPin").innerText = "Ubicación exacta seleccionada";
+  document.getElementById("estadoPin").className = "pin-status green";
+}
+
+// ---------------- ENVÍO ----------------
+function enviar(){
+  const data = {
+    nombre: document.getElementById("nombre").value,
+    descripcion: document.getElementById("descripcion").value,
+    municipio: document.getElementById("municipio").value,
+    tipo: [...document.getElementById("tipo").selectedOptions].map(o => o.value),
+    ofrece: [...document.getElementById("ofrece").selectedOptions].map(o => o.value),
+    contacto: document.getElementById("contacto").value || "Sin datos de contacto disponibles",
+    ubicacion: marker ? marker.getLatLng() : null,
+    tipo_ubicacion: modoAproximado ? "aproximada" : "exacta"
+  };
+
+  console.log(data);
+  alert("Formulario listo (ver consola)");
+}
 </script>
 
 </body>
-
 </html>
