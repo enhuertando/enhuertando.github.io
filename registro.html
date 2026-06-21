@@ -185,6 +185,19 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{
 let marker = null;
 let modoAprox = false;
 
+  // ---------------- ICONOS ----------------
+const greenIcon = new L.Icon({
+  iconUrl: "https://maps.google.com/mapfiles/ms/icons/green-dot.png",
+  iconSize: [32, 32],
+  iconAnchor: [16, 32]
+});
+
+const grayIcon = new L.Icon({
+  iconUrl: "https://maps.google.com/mapfiles/ms/icons/grey-dot.png",
+  iconSize: [32, 32],
+  iconAnchor: [16, 32]
+});
+  
 // click mapa (exacto)
 map.on("click", e=>{
   if(modoAprox) return;
