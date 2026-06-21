@@ -196,26 +196,54 @@ map.on("click", e=>{
   setExacto();
 });
 
-// toggle aproximado
-document.getElementById("aproximada").addEventListener("change", async e=>{
-  modoAprox = e.target.checked;
+// ---------------- UBICACIÓN APROXIMADA ----------------
+document.getElementById("aproximada").addEventListener("change", async function () {
 
-  if(marker) map.removeLayer(marker);
-  marker = null;
+  modoAprox = this.checked;
 
-  if(modoAprox){
-    const mun = sel.value;
-    const coords = await geocode(mun);
+  // Elimina cualquier marcador previo
+  if (marker) {
+    map.removeLayer(marker);
+    marker = null;
+  }
 
-    if(coords){
-      marker = L.marker(coords).addTo(map);
-      map.setView(coords,10);
+  if (modoAprox) {
+
+    // Debe haber un municipio seleccionado
+    if (!sel.value) {
+      alert("Primero selecciona un municipio.");
+      this.checked = false;
+      modoAprox = false;
+      return;
+    }
+
+    const coords = await geocode(sel.value);
+
+    if (coords) {
+      marker = L.marker(coords, {
+        draggable: false
+      }).addTo(map);
+
+      map.setView(coords, 11);
     }
 
     setAprox();
+
   } else {
-    document.getElementById("estadoPin").innerText = "Selecciona un punto en el mapa";
+
+    // Al desmarcar, se elimina el pin gris
+    if (marker) {
+      map.removeLayer(marker);
+      marker = null;
+    }
+
+    document.getElementById("estadoPin").innerText =
+      "Selecciona un punto en el mapa";
+    document.getElementById("estadoPin").className =
+      "pin-status";
+
   }
+
 });
 
 // geocode OSM
