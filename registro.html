@@ -373,10 +373,12 @@ async function enviar() {
 
   } catch (error) {
 
-    console.error(error);
-    alert("No fue posible enviar el formulario. Inténtalo de nuevo.");
+  console.error(error);
 
-  }
+  alert(
+    "No fue posible enviar el formulario.\n\n" +
+    "Error: " + error.message
+  );
 
 }
 
