@@ -199,14 +199,25 @@ const grayIcon = new L.Icon({
 });
   
 // click mapa (exacto)
-map.on("click", e=>{
-  if(modoAprox) return;
+map.on("click", function (e) {
 
-  if(marker) map.removeLayer(marker);
+  if (modoAprox) return;
 
-  marker = L.marker(e.latlng,{draggable:true}).addTo(map);
-  marker.on("dragend", setExacto);
+  if (marker) {
+    map.removeLayer(marker);
+  }
+
+  marker = L.marker(e.latlng, {
+    draggable: true,
+    icon: greenIcon
+  }).addTo(map);
+
+  marker.on("dragend", function () {
+    setExacto();
+  });
+
   setExacto();
+
 });
 
 // ---------------- UBICACIÓN APROXIMADA ----------------
@@ -233,9 +244,10 @@ document.getElementById("aproximada").addEventListener("change", async function 
     const coords = await geocode(sel.value);
 
     if (coords) {
-      marker = L.marker(coords, {
-        draggable: false
-      }).addTo(map);
+        marker = L.marker(coords, {
+        draggable: false,
+        icon: grayIcon
+    }).addTo(map);
 
       map.setView(coords, 11);
     }
