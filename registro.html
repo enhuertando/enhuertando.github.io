@@ -157,10 +157,22 @@ fetch("https://enhuertando.github.io/municipios_oaxaca.json")
     alert("Error al cargar la lista de municipios.");
   });
 
-// búsqueda
-document.getElementById("busquedaMunicipio").addEventListener("input", e=>{
-  const v = e.target.value.toLowerCase();
-  render(municipios.filter(m=>m.toLowerCase().includes(v)));
+// ---------------- BUSCADOR DE MUNICIPIOS ----------------
+document.getElementById("busquedaMunicipio").addEventListener("input", function () {
+
+  const texto = this.value.trim().toLowerCase();
+
+  if (texto === "") {
+    render(municipios);
+    return;
+  }
+
+  const filtrados = municipios.filter(municipio =>
+    municipio.toLowerCase().includes(texto)
+  );
+
+  render(filtrados);
+
 });
 
 // ---------------- MAPA ----------------
