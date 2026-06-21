@@ -283,14 +283,18 @@ async function geocode(mun){
   return null;
 }
 
-function setExacto(){
-  document.getElementById("estadoPin").innerText = "Ubicación exacta seleccionada";
-  document.getElementById("estadoPin").className = "pin-status green";
+function setExacto() {
+  document.getElementById("estadoPin").textContent =
+    "✅ Ubicación exacta seleccionada";
+  document.getElementById("estadoPin").className =
+    "pin-status green";
 }
 
-function setAprox(){
-  document.getElementById("estadoPin").innerText = "Ubicación aproximada (centro del municipio)";
-  document.getElementById("estadoPin").className = "pin-status gray";
+function setAprox() {
+  document.getElementById("estadoPin").textContent =
+    "⚪ Ubicación aproximada seleccionada";
+  document.getElementById("estadoPin").className =
+    "pin-status gray";
 }
 
 // ---------------- ENVÍO ----------------
