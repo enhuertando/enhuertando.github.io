@@ -126,29 +126,36 @@ Acepto que esta información sea publicada en el mapa de Enhuertando
 
 <script>
 
-// ---------------- MUNICIPIOS (placeholder 570 aquí) ----------------
+// ---------------- MUNICIPIOS ----------------
 let municipios = [];
-
-fetch("municipios_oaxaca.json")
-  .then(response => response.json())
-  .then(data => {
-    municipios = data;
-    render(data);
-  });
-
-// render municipios
 const sel = document.getElementById("municipio");
 
-function render(list){
+function render(lista) {
   sel.innerHTML = "";
-  list.forEach(m=>{
-    const o = document.createElement("option");
-    o.value = m;
-    o.textContent = m;
-    sel.appendChild(o);
+
+  lista.forEach(municipio => {
+    const opcion = document.createElement("option");
+    opcion.value = municipio;
+    opcion.textContent = municipio;
+    sel.appendChild(opcion);
   });
 }
-render(municipios);
+
+fetch("https://enhuertando.github.io/municipios_oaxaca.json")
+  .then(response => {
+    if (!response.ok) {
+      throw new Error("No se pudo cargar el archivo de municipios.");
+    }
+    return response.json();
+  })
+  .then(data => {
+    municipios = data;
+    render(municipios);
+  })
+  .catch(error => {
+    console.error(error);
+    alert("Error al cargar la lista de municipios.");
+  });
 
 // búsqueda
 document.getElementById("busquedaMunicipio").addEventListener("input", e=>{
