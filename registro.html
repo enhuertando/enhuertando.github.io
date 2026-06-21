@@ -124,13 +124,14 @@ Acepto que esta información sea publicada en el mapa de Enhuertando
 <script>
 
 // ---------------- MUNICIPIOS (placeholder 570 aquí) ----------------
-const municipios = [
-  "Abejones",
-  "Acatlán de Pérez Figueroa",
-  "Asunción Nochixtlán",
-  "Oaxaca de Juárez",
-  "Juchitán de Zaragoza"
-];
+let municipios = [];
+
+fetch("municipios_oaxaca.json")
+  .then(response => response.json())
+  .then(data => {
+    municipios = data;
+    render(data);
+  });
 
 // render municipios
 const sel = document.getElementById("municipio");
