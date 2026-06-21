@@ -269,30 +269,86 @@ function setAprox(){
 }
 
 // ---------------- ENVÍO ----------------
-async function enviar(){
+async function enviar() {
 
-  if(!document.getElementById("consentimiento").checked){
-    alert("Debes aceptar la publicación");
+  // Validación de consentimiento
+  if (!document.getElementById("consentimiento").checked) {
+    alert("Debes aceptar la publicación de la información.");
     return;
   }
 
-  const data = {
-    nombre: nombre.value,
-    descripcion: descripcion.value,
-    municipio: municipio.value,
-    tipo: [...tipo.selectedOptions].map(o=>o.value),
-    ofrece: [...ofrece.selectedOptions].map(o=>o.value),
-    contacto: contacto.value || "Sin datos de contacto disponibles",
-    ubicacion: marker ? marker.getLatLng() : null,
-    tipo_ubicacion: modoAprox ? "aproximada" : "exacta"
+  // Validación de nombre
+  if (!document.getElementById("nombre").value.trim()) {
+    alert("Ingresa el nombre de la iniciativa.");
+    return;
+  }
+
+  // Validación de municipio
+  if (!sel.value) {
+    alert("Selecciona un municipio.");
+    return;
+  }
+
+  // Debe haber ubicación exacta o aproximada
+  if (!modoAprox && !marker) {
+    alert("Selecciona una ubicación en el mapa o marca 'Prefiero no indicar ubicación exacta'.");
+    return;
+  }
+
+  const payload = {
+    nombre: document.getElementById("nombre").value.trim(),
+
+    descripcion: document.getElementById("descripcion").value.trim(),
+
+    municipio: sel.value,
+
+    tipo_iniciativa: [
+      ...document.getElementById("tipo").selectedOptions
+    ].map(o => o.value),
+
+    ofrece: [
+      ...document.getElementById("ofrece").selectedOptions
+    ].map(o => o.value),
+
+    latitud: marker ? marker.getLatLng().lat : "",
+
+    longitud: marker ? marker.getLatLng().lng : "",
+
+    contacto_publico:
+      document.getElementById("contacto").value.trim() ||
+      "Sin datos de contacto disponibles",
+
+    consentimiento: true,
+
+    ubicacion_aproximada: modoAprox
   };
 
-  await fetch("TU_URL_APPS_SCRIPT",{
-    method:"POST",
-    body:JSON.stringify(data)
-  });
+  try {
 
-  alert("Registro enviado 🌱");
+    const respuesta = await fetch(
+      "https://script.google.com/macros/s/AKfycbzPvkwQccCNCISBpFBBdz9P5GLghNeAyVTtt6Hmli1w4xZZntHpxv2FkUHmCHU5SZTm/exec",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      }
+    );
+
+    if (!respuesta.ok) {
+      throw new Error("Error al enviar el formulario.");
+    }
+
+    alert("¡Registro enviado correctamente! 🌱");
+
+  } catch (error) {
+
+    console.error(error);
+    alert("No fue posible enviar el formulario. Inténtalo de nuevo.");
+
+  }
+
 }
 
 </script>
