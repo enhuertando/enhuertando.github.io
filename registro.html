@@ -200,7 +200,11 @@ let modoAprox = false;
 // click mapa (exacto)
 map.on("click", function (e) {
 
-  if (modoAprox) return;
+  console.log("Click en mapa:", e.latlng);
+
+  if (modoAprox) {
+    return;
+  }
 
   if (marker) {
     map.removeLayer(marker);
