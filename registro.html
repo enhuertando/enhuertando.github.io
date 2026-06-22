@@ -12,7 +12,7 @@ body { font-family: Arial; margin: 0; }
 .container { max-width: 900px; margin: auto; padding: 20px; }
 
 label { font-weight: bold; display:block; margin-top:15px; }
-input, textarea, select { width:100%; padding:8px; margin-top:5px; }
+input, textarea, select { width:100%; padding:8px; margin-top:5px; box-sizing: border-box; }
 
 #map {
   width: 100%;
@@ -26,8 +26,8 @@ input, textarea, select { width:100%; padding:8px; margin-top:5px; }
 
 .pin-status { margin-top:10px; font-weight:bold; }
 
-button { margin-top:20px; padding:10px; }
-  select[multiple] {
+button { margin-top:20px; padding:10px; cursor: pointer; }
+select[multiple] {
   min-height: 160px;
 }
 </style>
@@ -133,11 +133,11 @@ Sin ubicación seleccionada
 
 <script>
   
-// ---------------- MUNICIPIOS ----------------
+// ============ MUNICIPIOS ============
 let municipios = [];
 const sel = document.getElementById("municipio");
 
-function render(lista) {
+function renderMunicipios(lista) {
   sel.innerHTML = "";
 
   lista.forEach(municipio => {
@@ -148,7 +148,8 @@ function render(lista) {
   });
 }
 
-fetch("https://enhuertando.github.io/municipios_oaxaca.json")
+// Cargar municipios desde el JSON
+fetch("https://raw.githubusercontent.com/enhuertando/enhuertando.github.io/main/municipios_oaxaca.json")
   .then(response => {
     if (!response.ok) {
       throw new Error("No se pudo cargar el archivo de municipios.");
@@ -157,20 +158,19 @@ fetch("https://enhuertando.github.io/municipios_oaxaca.json")
   })
   .then(data => {
     municipios = data;
-    render(municipios);
+    renderMunicipios(municipios);
   })
   .catch(error => {
-    console.error(error);
+    console.error("Error al cargar municipios:", error);
     alert("Error al cargar la lista de municipios.");
   });
 
-// ---------------- BUSCADOR DE MUNICIPIOS ----------------
+// ============ BUSCADOR DE MUNICIPIOS ============
 document.getElementById("busquedaMunicipio").addEventListener("input", function () {
-
   const texto = this.value.trim().toLowerCase();
 
   if (texto === "") {
-    render(municipios);
+    renderMunicipios(municipios);
     return;
   }
 
@@ -178,11 +178,10 @@ document.getElementById("busquedaMunicipio").addEventListener("input", function 
     municipio.toLowerCase().includes(texto)
   );
 
-  render(filtrados);
-
+  renderMunicipios(filtrados);
 });
 
-// ---------------- MAPA ----------------
+// ============ MAPA ============
 
 const ZOCALO = [17.061247, -96.722089];
 
@@ -202,7 +201,6 @@ let modoAprox = false;
 
 // Clic para ubicación exacta
 map.on("click", function (e) {
-
   if (modoAprox) return;
 
   if (marker) {
@@ -215,12 +213,10 @@ map.on("click", function (e) {
 
   document.getElementById("estadoPin").textContent =
     "Ubicación exacta seleccionada.";
-
 });
 
 // Casilla de ubicación aproximada
 document.getElementById("aproximada").addEventListener("change", function () {
-
   modoAprox = this.checked;
 
   if (marker) {
@@ -229,24 +225,17 @@ document.getElementById("aproximada").addEventListener("change", function () {
   }
 
   if (modoAprox) {
-
     marker = L.marker(ZOCALO).addTo(map);
-
     map.setView(ZOCALO, 15);
-
     document.getElementById("estadoPin").textContent =
       "Se utilizará una ubicación aproximada en el Zócalo de la ciudad de Oaxaca.";
-
   } else {
-
     document.getElementById("estadoPin").textContent =
       "Sin ubicación seleccionada.";
-
   }
-
 });
-  
-// ---------------- ENVÍO ----------------
+
+// ============ ENVÍO ============
 async function enviar() {
 
   // Validación de consentimiento
@@ -273,10 +262,29 @@ async function enviar() {
     return;
   }
 
- try {
+  // CREAR EL OBJETO PAYLOAD (DATOS A ENVIAR)
+  const payload = {
+    nombre: document.getElementById("nombre").value.trim(),
+    descripcion: document.getElementById("descripcion").value.trim(),
+    municipio: sel.value,
+    tipo_iniciativa: [
+      ...document.getElementById("tipo").selectedOptions
+    ].map(o => o.value),
+    ofrece: [
+      ...document.getElementById("ofrece").selectedOptions
+    ].map(o => o.value),
+    latitud: marker ? marker.getLatLng().lat : "",
+    longitud: marker ? marker.getLatLng().lng : "",
+    contacto_publico:
+      document.getElementById("contacto").value.trim() ||
+      "Sin datos de contacto disponibles",
+    consentimiento: true,
+    ubicacion_aproximada: modoAprox
+  };
 
+  try {
     const respuesta = await fetch(
-      "Ahttps://script.google.com/macros/s/AKfycbwuuuhfHW6o1O7A-rMfQ235yl01EUPJqdDQ_ffh2FBeVHJlvbgqM2g2sX1qpIL7hcWt/exec",
+      "https://script.google.com/macros/s/AKfycbwuuuhfHW6o1O7A-rMfQ235yl01EUPJqdDQ_ffh2FBeVHJlvbgqM2g2sX1qpIL7hcWt/usercopy",
       {
         method: "POST",
         body: JSON.stringify(payload)
@@ -287,6 +295,8 @@ async function enviar() {
 
     if (resultado.ok) {
       alert("¡Registro enviado correctamente! 🌱");
+      
+      // Limpiar formulario
       document.getElementById("nombre").value = "";
       document.getElementById("descripcion").value = "";
       document.getElementById("contacto").value = "";
@@ -296,56 +306,22 @@ async function enviar() {
       document.getElementById("municipio").value = "";
       document.getElementById("consentimiento").checked = false;
       document.getElementById("aproximada").checked = false;
+      
       if (marker) {
         map.removeLayer(marker);
         marker = null;
       }
+      
+      modoAprox = false;
       document.getElementById("estadoPin").textContent = "Sin ubicación seleccionada";
     } else {
       throw new Error(resultado.error || "Error desconocido");
     }
 
- } catch (error) {
-  console.error(error);
-  alert("No fue posible enviar el formulario: " + error.message);
-}
-    latitud: marker ? marker.getLatLng().lat : "",
-
-    longitud: marker ? marker.getLatLng().lng : "",
-
-    contacto_publico:
-      document.getElementById("contacto").value.trim() ||
-      "Sin datos de contacto disponibles",
-
-    consentimiento: true,
-
-    ubicacion_aproximada: modoAprox
-  };
-
-  try {
-
-    const respuesta = await fetch(
-      "https://script.google.com/macros/s/AKfycbwuuuhfHW6o1O7A-rMfQ235yl01EUPJqdDQ_ffh2FBeVHJlvbgqM2g2sX1qpIL7hcWt/exec",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-      }
-    );
-
-    if (!respuesta.ok) {
-      throw new Error("Error al enviar el formulario.");
-    }
-
-    alert("¡Registro enviado correctamente! 🌱");
-
- } catch (error) {
-  console.error(error);
-  alert("No fue posible enviar el formulario: " + error);
-}
-
+  } catch (error) {
+    console.error("Error:", error);
+    alert("No fue posible enviar el formulario: " + error.message);
+  }
 }
 
 </script>
