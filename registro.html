@@ -100,19 +100,22 @@ Contacto: enhuertando@gmail.com
 <select id="municipio"></select>
 
 <!-- UBICACIÓN -->
-<label>Ubicación *</label>
+<label>Ubicación de la iniciativa *</label>
 
 <p class="small">
-Selecciona la ubicación en el mapa. Si no quieres indicar ubicación exacta, marca la casilla.
+Haz clic sobre el mapa para indicar la ubicación de tu iniciativa.
 </p>
 
 <label>
-<input type="checkbox" id="aproximada"/>
-Prefiero no indicar ubicación exacta
+  <input type="checkbox" id="aproximada">
+  Si no deseas dar una ubicación exacta, selecciona esta casilla y tu iniciativa aparecerá en el Zócalo de la ciudad de Oaxaca.
 </label>
 
 <div id="map"></div>
-<div class="pin-status" id="estadoPin">Sin ubicación seleccionada</div>
+
+<div class="pin-status" id="estadoPin">
+Sin ubicación seleccionada
+</div>
 
 <!-- CONTACTO -->
 <label>Datos de contacto (opcional). Recuerda que estos datos aparecerán en el mapa público.</label>
@@ -182,53 +185,46 @@ document.getElementById("busquedaMunicipio").addEventListener("input", function 
 });
 
 // ---------------- MAPA ----------------
-const map = L.map("map").setView([17.07,-96.72],7);
 
-setTimeout(() => {
-  map.invalidateSize();
-}, 500);
-  
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-{
-  attribution:"© OpenStreetMap contributors"
-}
-           ).addTo(map);
+const ZOCALO = [17.061247, -96.722089];
+
+const map = L.map("map").setView([17.07, -96.72], 8);
+
+L.tileLayer(
+  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+  {
+    attribution: "© OpenStreetMap contributors"
+  }
+).addTo(map);
+
+setTimeout(() => map.invalidateSize(), 300);
 
 let marker = null;
 let modoAprox = false;
-    
-// click mapa (exacto)
+
+// Clic para ubicación exacta
 map.on("click", function (e) {
 
-  console.log("Click en mapa:", e.latlng);
-
-  if (modoAprox) {
-    return;
-  }
+  if (modoAprox) return;
 
   if (marker) {
     map.removeLayer(marker);
   }
 
   marker = L.marker(e.latlng, {
-    draggable: true,
-    icon: greenIcon
+    draggable: true
   }).addTo(map);
 
-  marker.on("dragend", function () {
-    setExacto();
-  });
-
-  setExacto();
+  document.getElementById("estadoPin").textContent =
+    "Ubicación exacta seleccionada.";
 
 });
 
-// ---------------- UBICACIÓN APROXIMADA ----------------
-document.getElementById("aproximada").addEventListener("change", async function () {
+// Casilla de ubicación aproximada
+document.getElementById("aproximada").addEventListener("change", function () {
 
   modoAprox = this.checked;
 
-  // Elimina cualquier marcador previo
   if (marker) {
     map.removeLayer(marker);
     marker = null;
@@ -236,70 +232,22 @@ document.getElementById("aproximada").addEventListener("change", async function 
 
   if (modoAprox) {
 
-    // Debe haber un municipio seleccionado
-    if (!sel.value) {
-      alert("Primero selecciona un municipio.");
-      this.checked = false;
-      modoAprox = false;
-      return;
-    }
+    marker = L.marker(ZOCALO).addTo(map);
 
-    const coords = await geocode(sel.value);
+    map.setView(ZOCALO, 15);
 
-    if (coords) {
-        marker = L.marker(coords, {
-        draggable: false,
-        icon: grayIcon
-    }).addTo(map);
-
-      map.setView(coords, 11);
-    }
-
-    setAprox();
+    document.getElementById("estadoPin").textContent =
+      "Se utilizará una ubicación aproximada en el Zócalo de la ciudad de Oaxaca.";
 
   } else {
 
-    // Al desmarcar, se elimina el pin gris
-    if (marker) {
-      map.removeLayer(marker);
-      marker = null;
-    }
-
-    document.getElementById("estadoPin").innerText =
-      "Selecciona un punto en el mapa";
-    document.getElementById("estadoPin").className =
-      "pin-status";
+    document.getElementById("estadoPin").textContent =
+      "Sin ubicación seleccionada.";
 
   }
 
 });
-
-// geocode OSM
-async function geocode(mun){
-  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(mun+", Oaxaca, Mexico")}&limit=1`;
-  const r = await fetch(url);
-  const d = await r.json();
-
-  if(d.length){
-    return [parseFloat(d[0].lat), parseFloat(d[0].lon)];
-  }
-  return null;
-}
-
-function setExacto() {
-  document.getElementById("estadoPin").textContent =
-    "✅ Ubicación exacta seleccionada";
-  document.getElementById("estadoPin").className =
-    "pin-status green";
-}
-
-function setAprox() {
-  document.getElementById("estadoPin").textContent =
-    "⚪ Ubicación aproximada seleccionada";
-  document.getElementById("estadoPin").className =
-    "pin-status gray";
-}
-
+  
 // ---------------- ENVÍO ----------------
 async function enviar() {
 
