@@ -27,8 +27,28 @@ input, textarea, select { width:100%; padding:8px; margin-top:5px; box-sizing: b
 .pin-status { margin-top:10px; font-weight:bold; }
 
 button { margin-top:20px; padding:10px; cursor: pointer; }
+
 select[multiple] {
   min-height: 160px;
+}
+
+.checkbox-label {
+  font-weight: normal;
+  display: flex;
+  align-items: flex-start;
+  margin-top: 15px;
+  gap: 8px;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: auto;
+  margin-top: 0;
+  flex-shrink: 0;
+  margin-right: 8px;
+}
+
+.checkbox-label span {
+  font-weight: normal;
 }
 </style>
 </head>
@@ -104,10 +124,10 @@ Contacto: enhuertando@gmail.com
 Haz clic sobre el mapa para indicar la ubicación de tu iniciativa.
 </p>
 
-<label>
+<div class="checkbox-label">
   <input type="checkbox" id="aproximada">
-  Si no deseas dar una ubicación exacta, selecciona esta casilla y tu iniciativa aparecerá en el Zócalo de la ciudad de Oaxaca.
-</label>
+  <span>Si no deseas dar una ubicación exacta, selecciona esta casilla y tu iniciativa aparecerá en el Zócalo de la ciudad de Oaxaca.</span>
+</div>
 
 <div id="map"></div>
 
@@ -120,10 +140,10 @@ Sin ubicación seleccionada
 <textarea id="contacto" placeholder="WhatsApp, correo, página web o redes sociales"></textarea>
 
 <!-- CONSENTIMIENTO -->
-<label>
-<input type="checkbox" id="consentimiento"/>
-8. Acepto que esta información sea publicada en el mapa de Enhuertando
-</label>
+<div class="checkbox-label">
+  <input type="checkbox" id="consentimiento">
+  <span>8. Acepto que esta información sea publicada en el mapa de Enhuertando</span>
+</div>
 
 <button onclick="enviar()">Enviar</button>
 
