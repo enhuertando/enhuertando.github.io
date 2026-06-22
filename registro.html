@@ -25,8 +25,6 @@ input, textarea, select { width:100%; padding:8px; margin-top:5px; }
 .small { font-size: 14px; color: #444; margin-bottom: 10px; }
 
 .pin-status { margin-top:10px; font-weight:bold; }
-.green { color:green; }
-.gray { color:gray; }
 
 button { margin-top:20px; padding:10px; }
   select[multiple] {
@@ -48,15 +46,15 @@ Contacto: enhuertando@gmail.com
 </p>
 
 <!-- NOMBRE -->
-<label>Nombre de la iniciativa *</label>
+<label>1. Nombre de la iniciativa *</label>
 <input id="nombre" type="text"/>
 
 <!-- DESCRIPCION -->
-<label>Descripción (opcional)</label>
+<label>2. Breve Descripción (opcional)</label>
 <textarea id="descripcion" placeholder="Describe brevemente la iniciativa (opcional)"></textarea>
 
 <!-- TIPO -->
-<label>Tipo de iniciativa * (puedes seleccionar más de una)</label>
+<label>3. Tipo de iniciativa * (puedes seleccionar más de una utilizando la tecla ctrl)</label>
 <select id="tipo" multiple>
   <option>Huerto familiar</option>
   <option>Huerto comunitario</option>
@@ -75,7 +73,7 @@ Contacto: enhuertando@gmail.com
 </select>
 
 <!-- OFRECE -->
-<label>¿Qué podemos encontrar en esta iniciativa? (opcional)</label>
+<label>4. ¿Qué podemos encontrar en esta iniciativa? (opcional)</label>
 <select id="ofrece" multiple>
   <option>Talleres</option>
   <option>Capacitación</option>
@@ -95,11 +93,11 @@ Contacto: enhuertando@gmail.com
 </select>
 
 <!-- MUNICIPIO -->
-<label>¿En qué Municipio se ubica? *</label>
+<label>5. ¿En qué Municipio se ubica? *</label>
 <input id="busquedaMunicipio" placeholder="Escribe para buscar..." />
 <select id="municipio"></select>
 
-<!-- UBICACIÓN -->
+<!-- 6. UBICACIÓN -->
 <label>Ubicación de la iniciativa *</label>
 
 <p class="small">
@@ -118,13 +116,13 @@ Sin ubicación seleccionada
 </div>
 
 <!-- CONTACTO -->
-<label>Datos de contacto (opcional). Recuerda que estos datos aparecerán en el mapa público.</label>
+<label>7. Datos de contacto (opcional). Recuerda que estos datos aparecerán en el mapa público.</label>
 <textarea id="contacto" placeholder="WhatsApp, correo, página web o redes sociales"></textarea>
 
 <!-- CONSENTIMIENTO -->
 <label>
 <input type="checkbox" id="consentimiento"/>
-Acepto que esta información sea publicada en el mapa de Enhuertando
+8. Acepto que esta información sea publicada en el mapa de Enhuertando
 </label>
 
 <button onclick="enviar()">Enviar</button>
