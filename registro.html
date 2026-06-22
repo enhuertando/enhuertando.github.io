@@ -273,21 +273,42 @@ async function enviar() {
     return;
   }
 
-  const payload = {
-    nombre: document.getElementById("nombre").value.trim(),
+ try {
 
-    descripcion: document.getElementById("descripcion").value.trim(),
+    const respuesta = await fetch(
+      "Ahttps://script.google.com/macros/s/AKfycbwuuuhfHW6o1O7A-rMfQ235yl01EUPJqdDQ_ffh2FBeVHJlvbgqM2g2sX1qpIL7hcWt/exec",
+      {
+        method: "POST",
+        body: JSON.stringify(payload)
+      }
+    );
 
-    municipio: sel.value,
+    const resultado = await respuesta.json();
 
-    tipo_iniciativa: [
-      ...document.getElementById("tipo").selectedOptions
-    ].map(o => o.value),
+    if (resultado.ok) {
+      alert("¡Registro enviado correctamente! 🌱");
+      document.getElementById("nombre").value = "";
+      document.getElementById("descripcion").value = "";
+      document.getElementById("contacto").value = "";
+      document.getElementById("tipo").value = "";
+      document.getElementById("ofrece").value = "";
+      document.getElementById("busquedaMunicipio").value = "";
+      document.getElementById("municipio").value = "";
+      document.getElementById("consentimiento").checked = false;
+      document.getElementById("aproximada").checked = false;
+      if (marker) {
+        map.removeLayer(marker);
+        marker = null;
+      }
+      document.getElementById("estadoPin").textContent = "Sin ubicación seleccionada";
+    } else {
+      throw new Error(resultado.error || "Error desconocido");
+    }
 
-    ofrece: [
-      ...document.getElementById("ofrece").selectedOptions
-    ].map(o => o.value),
-
+ } catch (error) {
+  console.error(error);
+  alert("No fue posible enviar el formulario: " + error.message);
+}
     latitud: marker ? marker.getLatLng().lat : "",
 
     longitud: marker ? marker.getLatLng().lng : "",
