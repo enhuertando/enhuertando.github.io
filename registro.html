@@ -14,7 +14,13 @@ body { font-family: Arial; margin: 0; }
 label { font-weight: bold; display:block; margin-top:15px; }
 input, textarea, select { width:100%; padding:8px; margin-top:5px; }
 
-#map { height: 350px; margin-top: 10px; }
+#map {
+  width: 100%;
+  height: 400px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+}
 
 .small { font-size: 14px; color: #444; margin-bottom: 10px; }
 
@@ -375,10 +381,7 @@ async function enviar() {
 
   console.error(error);
 
-  alert(
-    "No fue posible enviar el formulario.\n\n" +
-    "Error: " + error.message
-  );
+  alert("No fue posible enviar el formulario: " + error);
 
 }
 
