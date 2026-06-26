@@ -147,13 +147,22 @@ fetch(API)
 
 function llenarFiltros(){
 
-    const municipios=[...new Set(registros.map(x=>x.municipio).filter(Boolean))].sort();
+    // Cargar municipios desde el archivo JSON
+fetch("https://enhuertando.github.io/municipios_oaxaca.json")
+  .then(response => response.json())
+  .then(municipios => {
 
-    municipios.forEach(m=>{
+    municipios.forEach(municipio => {
 
-        filtroMunicipio.innerHTML+=`<option>${m}</option>`;
+      filtroMunicipio.innerHTML +=
+        `<option value="${municipio}">${municipio}</option>`;
 
     });
+
+  })
+  .catch(error => {
+    console.error("Error cargando municipios:", error);
+  });
 
     const tipos=new Set();
 
