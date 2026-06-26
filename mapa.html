@@ -1,25 +1,252 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
 <meta charset="UTF-8">
-<title>Mapa</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-   <link rel="stylesheet" href="style.css">
+<title>Mapa Enhuertando</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
+<style>
+
+html,body{
+    margin:0;
+    height:100%;
+    font-family:Arial,sans-serif;
+}
+
+header{
+    padding:18px;
+    background:#3d7d3b;
+    color:white;
+}
+
+header h2{
+    margin-top:0;
+}
+
+#contenedor{
+    display:flex;
+    height:calc(100vh - 130px);
+}
+
+#panel{
+    width:320px;
+    overflow-y:auto;
+    border-right:1px solid #ddd;
+    padding:15px;
+    box-sizing:border-box;
+    background:#fafafa;
+}
+
+#map{
+    flex:1;
+}
+
+select{
+    width:100%;
+    padding:6px;
+    margin-bottom:12px;
+}
+
+.iniciativa{
+    cursor:pointer;
+    padding:8px;
+    border-bottom:1px solid #ddd;
+}
+
+.iniciativa:hover{
+    background:#eef6ee;
+}
+
+</style>
+
 </head>
 
 <body>
 
-<h1>Mapa de iniciativas</h1>
+<header>
 
-<p>Aquí aparecerá el mapa interactivo.</p>
+<h2>Mapa de iniciativas agroecológicas</h2>
 
 <p>
-<a href="index.html">
-Volver al inicio
-</a>
+¡Bienvenida, bienvenido, bienvenide! En este mapa encontrarás las iniciativas agroecológicas que han sido registradas.
 </p>
 
-</body>
+</header>
 
+<div id="contenedor">
+
+<div id="panel">
+
+<h3>Filtros</h3>
+
+<label>Municipio</label>
+
+<select id="filtroMunicipio">
+<option value="">Todos</option>
+</select>
+
+<label>Tipo de iniciativa</label>
+
+<select id="filtroTipo">
+<option value="">Todos</option>
+</select>
+
+<label>¿Qué podemos encontrar?</label>
+
+<select id="filtroOfrece">
+<option value="">Todos</option>
+</select>
+
+<hr>
+
+<h3>Iniciativas</h3>
+
+<div id="lista"></div>
+
+</div>
+
+<div id="map"></div>
+
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+
+const API="https://script.google.com/macros/s/AKfycbw8SQny-cmewKlxyiGb5E5LQTlxsQ8P5YSmKn_G9h8fvE121EmSeYCbmJkfMV1Djb-F/exec";
+
+const mapa=L.map("map").setView([17.07,-96.72],8);
+
+L.tileLayer(
+"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+{
+attribution:"© OpenStreetMap"
+}
+).addTo(mapa);
+
+let registros=[];
+let markers=[];
+
+fetch(API)
+.then(r=>r.json())
+.then(datos=>{
+
+    registros=datos;
+
+    llenarFiltros();
+
+    pintar();
+
+});
+
+function llenarFiltros(){
+
+    const municipios=[...new Set(registros.map(x=>x.municipio).filter(Boolean))].sort();
+
+    municipios.forEach(m=>{
+
+        filtroMunicipio.innerHTML+=`<option>${m}</option>`;
+
+    });
+
+    const tipos=new Set();
+
+    registros.forEach(r=>{
+
+        r.tipo_iniciativa.forEach(t=>tipos.add(t));
+
+    });
+
+    [...tipos].sort().forEach(t=>{
+
+        filtroTipo.innerHTML+=`<option>${t}</option>`;
+
+    });
+
+    const ofrece=new Set();
+
+    registros.forEach(r=>{
+
+        r.ofrece.forEach(o=>ofrece.add(o));
+
+    });
+
+    [...ofrece].sort().forEach(o=>{
+
+        filtroOfrece.innerHTML+=`<option>${o}</option>`;
+
+    });
+
+}
+
+function pintar(){
+
+    markers.forEach(m=>mapa.removeLayer(m));
+
+    markers=[];
+
+    lista.innerHTML="";
+
+    const mun=filtroMunicipio.value;
+
+    const tipo=filtroTipo.value;
+
+    const of=filtroOfrece.value;
+
+    registros.forEach(reg=>{
+
+        if(mun && reg.municipio!==mun) return;
+
+        if(tipo && !reg.tipo_iniciativa.includes(tipo)) return;
+
+        if(of && !reg.ofrece.includes(of)) return;
+
+        const mk=L.marker([reg.latitud,reg.longitud]).addTo(mapa);
+
+        mk.bindPopup(
+
+            "<b>"+reg.nombre+"</b><br><br>"+
+
+            "<b>Descripción:</b><br>"+(reg.descripcion||"")+"<br><br>"+
+
+            "<b>Tipo:</b><br>"+reg.tipo_iniciativa.join(", ")+"<br><br>"+
+
+            "<b>¿Qué podemos encontrar?</b><br>"+reg.ofrece.join(", ")+"<br><br>"+
+
+            "<b>Contacto:</b><br>"+(reg.contacto_publico||"")
+
+        );
+
+        markers.push(mk);
+
+        const div=document.createElement("div");
+
+        div.className="iniciativa";
+
+        div.textContent=reg.nombre;
+
+        div.onclick=function(){
+
+            mapa.setView([reg.latitud,reg.longitud],15);
+
+            mk.openPopup();
+
+        };
+
+        lista.appendChild(div);
+
+    });
+
+}
+
+filtroMunicipio.onchange=pintar;
+filtroTipo.onchange=pintar;
+filtroOfrece.onchange=pintar;
+
+</script>
+
+</body>
 </html>
